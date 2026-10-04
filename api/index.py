@@ -290,7 +290,9 @@ WEBMASTER = {
 # ----------------------------------------------------------------------------
 @app.route("/api/<path:path>", methods=["GET", "POST"])
 def dispatch(path):
-    key = (request.method, path.strip("/"))
+    # Vercel réécrit /api/xxx vers /api/index : le vrai chemin arrive dans ?route=xxx (voir vercel.json).
+    route = request.args.get("route") or path
+    key = (request.method, route.strip("/"))
     body = request.get_json(silent=True) or {}
     try:
         db = admin_client()

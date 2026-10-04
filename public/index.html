@@ -351,6 +351,7 @@
     <a href="#" onclick="showSection('legal-section'); return false;">Mentions légales & Confidentialité</a>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     let authToken = localStorage.getItem('site_token') || null;
     let currentUserProfile = null;
@@ -646,6 +647,8 @@
       loadApprovedSheets();
     }
 
+    const MAX_UPLOAD_MB = 25; // doit rester <= à la limite du bucket dans Supabase
+
     async function uploadRevisionSheet() {
       const title = document.getElementById('fiche-title').value;
       const subject = document.getElementById('fiche-subject').value;
@@ -654,18 +657,20 @@
       if (!title || !fileInput.files.length) return alert('Sélectionnez un fichier et un titre.');
 
       const file = fileInput.files[0];
-      if (file.size > 3 * 1024 * 1024) return alert('Fichier trop volumineux (3 Mo maximum).');
-      const reader = new FileReader();
-      reader.onload = async () => {
-        try {
-          await apiFetch('sheets/upload', 'POST', {
-            title, subject, fileName: file.name, fileBase64: reader.result
-          });
-          alert('Fiche envoyée pour validation !');
-          loadMyProposedSheets();
-        } catch (err) { alert(err.message); }
-      };
-      reader.readAsDataURL(file);
+      if (file.size > MAX_UPLOAD_MB * 1024 * 1024) return alert(`Fichier trop volumineux (${MAX_UPLOAD_MB} Mo maximum).`);
+
+      try {
+        // 1) le serveur délivre une URL d'envoi signée  2) le navigateur envoie le fichier DIRECTEMENT à Supabase
+        // 3) le serveur enregistre la fiche. Le fichier ne passe jamais par Vercel : plus de limite de 4,5 Mo.
+        const cfg = await apiFetch('config');
+        const { path, token } = await apiFetch('sheets/upload-url', 'POST', { fileName: file.name });
+        const sb = supabase.createClient(cfg.supabase_url, cfg.supabase_anon_key, { auth: { persistSession: false } });
+        const { error } = await sb.storage.from('revision_files').uploadToSignedUrl(path, token, file);
+        if (error) throw new Error(error.message);
+        await apiFetch('sheets/register', 'POST', { title, subject, fileName: file.name, path });
+        alert('Fiche envoyée pour validation !');
+        loadMyProposedSheets();
+      } catch (err) { alert(err.message); }
     }
 
     async function loadMyProposedSheets() {

@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espace Classe 1G_H</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: var(--text); line-height: 1.6; padding-top: 80px; display: flex; flex-direction: column; min-height: 100vh; }
+
+    header {
+      position: fixed; top: 0; left: 0; right: 0; height: 70px;
+      background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; z-index: 100;
+    }
+
+    .brand { font-weight: 700; font-size: 1.25rem; color: var(--primary); cursor: pointer; }
+    .nav-buttons { display: flex; gap: 1rem; align-items: center; }
+
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; padding: 0.6rem 1.2rem;
+      font-size: 0.9rem; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s ease; text-decoration: none;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-outline:hover { background: #f1f5f9; }
+    .btn-white { background: #ffffff; color: var(--primary); font-weight: 700; }
+    .btn-success { background: #16a34a; color: white; }
+    .btn-danger { background: #dc2626; color: white; }
+
+    .container { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; flex: 1; width: 100%; }
+    .hero { background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); color: white; border-radius: var(--radius); padding: 3rem 2rem; margin-bottom: 2.5rem; }
+    .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; }
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
+    .card-title { font-size: 1.25rem; font-weight: 700; }
+
+    .post-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; margin-bottom: 1rem; }
+    .sheet-item { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.6rem; cursor: pointer; transition: background 0.2s; }
+    .sheet-item:hover { background: #f1f5f9; }
+
+    input, textarea, select { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.95rem; margin-bottom: 1rem; background: #f8fafc; }
+    .hidden { display: none !important; }
+    
+    .result-card { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid #bfdbfe; padding: 1.2rem; border-radius: 10px; margin-bottom: 1rem; box-shadow: var(--shadow); }
+    .result-card h4 { color: #1e40af; font-size: 1.1rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem; }
+    .result-card p { color: #1e3a8a; font-size: 0.95rem; white-space: pre-wrap; }
+
+    .badge { display: inline-block; padding: 0.25rem 0.6rem; font-size: 0.75rem; font-weight: 700; border-radius: 9999px; text-transform: uppercase; }
+    .badge-admin { background: #dbeafe; color: #1e40af; }
+    .badge-webmaster { background: #fef3c7; color: #92400e; }
+    .badge-student { background: #f1f5f9; color: #475569; }
+    .badge-pending { background: #fef3c7; color: #b45309; }
+    .badge-approved { background: #dcfce7; color: #166534; }
+    .badge-rejected { background: #fee2e2; color: #991b1b; }
+
+    .user-row { display: flex; align-items: center; justify-content: space-between; padding: 0.8rem; background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 0.6rem; gap: 1rem; }
+
+    .intake-scroll-box { max-height: 450px; overflow-y: auto; padding-right: 0.4rem; }
+    .intake-response-row { background: #ffffff; border: 1px solid var(--border); border-left: 4px solid #16a34a; border-radius: 8px; padding: 1rem; margin-bottom: 0.8rem; }
+
+    .cookie-banner {
+      position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface);
+      border-top: 1px solid var(--border); padding: 1.2rem 2rem; box-shadow: 0 -4px 15px rgba(0,0,0,0.08);
+      z-index: 1000; display: flex; flex-direction: column; gap: 1rem;
+    }
+    @media (min-width: 768px) {
+      .cookie-banner { flex-direction: row; align-items: center; justify-content: space-between; }
+    }
+    .cookie-buttons { display: flex; gap: 0.8rem; flex-shrink: 0; }
+
+    footer {
+      background: var(--surface); border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;
+      display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin-bottom: 0;
+    }
+    footer a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand" onclick="showSection('home-section')">🎓 Classe de 1G_H</div>
+    <div class="nav-buttons">
+      <button id="nav-space-btn" class="btn btn-primary" onclick="showSection('space-section')">🔒 Mon Espace / Connexion</button>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ACCUEIL -->
+    <div id="home-section">
+      <div class="hero">
+        <h1>Bienvenue sur le site de la classe de 1G_H !</h1>
+        <p style="margin-bottom: 1.5rem;">Retrouvez ici toutes les actualités, fiches de révision et formulaires de la classe.</p>
+        <a href="mailto:alexandre.codron-blervaque@student-oec.fr,lili.jousse@student-oec.fr" class="btn btn-white">✉ Contacter mes délégués</a>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📚 Fiches de révision publiées</h2>
+          <button class="btn btn-outline" onclick="showSection('space-section')">➕ Proposer une fiche</button>
+        </div>
+        <div id="approved-sheets-list">Chargement des fiches...</div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <div class="card">
+            <div class="card-header"><h2 class="card-title">📢 Annonces récentes</h2></div>
+            <div id="posts-list">Chargement des annonces...</div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-header"><h2 class="card-title">📝 Liens Utiles</h2></div>
+            <div class="sheet-item" onclick="openIntakeForm()">
+              <span>📋 Formulaire Délégués</span> ➔
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORMULAIRE DÉLÉGUÉS -->
+    <div id="intake-section" class="hidden">
+      <div class="card" style="max-width: 700px; margin: 0 auto;">
+        <div class="card-header">
+          <h2 class="card-title">📋 Boîte à idées et défense des délégués</h2>
+          <button class="btn btn-outline" onclick="showSection('home-section')">⬅ Retour</button>
+        </div>
+        <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+          Ce formulaire est strictement confidentiel et réservé aux délégués de classe. Exprimez-vous librement. Si vous avez déjà répondu, soumettre à nouveau modifiera vos réponses précédentes.
+        </p>
+
+        <div id="intake-not-logged" class="hidden" style="background: #fef2f2; border: 1px solid #f87171; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; color: #991b1b;">
+          ⚠️ Vous devez être <strong>connecté</strong> avec votre compte pour répondre à ce formulaire. <a href="#" onclick="showSection('space-section')" style="color:#2563eb; font-weight:bold;">Se connecter</a>
+        </div>
+
+        <div id="intake-form-container">
+          <label><strong>1. Avez-vous une information importante à nous transmettre ? (Problèmes persos, harcèlement, difficultés particulières...)</strong></label>
+          <textarea id="intake-info" rows="4" placeholder="Exprimez-vous en toute confiance..."></textarea>
+
+          <label style="margin-top: 1rem; display:block;"><strong>2. Vos réseaux de contact (facultatif mais utile pour vous joindre rapidement) :</strong></label>
+          
+          <div style="margin: 0.5rem 0;">
+            <label style="font-weight: normal; display: flex; align-items: center; gap: 0.5rem;">
+              <input type="checkbox" id="check-whatsapp" onchange="toggleNetworkInput('whatsapp')" style="width: auto; margin:0;"> WhatsApp
+            </label>
+            <input type="text" id="input-whatsapp" class="hidden" placeholder="Votre numéro ou pseudo WhatsApp" style="margin-top: 0.4rem;">
+          </div>
+
+          <div style="margin: 0.5rem 0;">
+            <label style="font-weight: normal; display: flex; align-items: center; gap: 0.5rem;">
+              <input type="checkbox" id="check-snapchat" onchange="toggleNetworkInput('snapchat')" style="width: auto; margin:0;"> Snapchat
+            </label>
+            <input type="text" id="input-snapchat" class="hidden" placeholder="Votre pseudo Snapchat" style="margin-top: 0.4rem;">
+          </div>
+
+          <div style="margin: 0.5rem 0;">
+            <label style="font-weight: normal; display: flex; align-items: center; gap: 0.5rem;">
+              <input type="checkbox" id="check-instagram" onchange="toggleNetworkInput('instagram')" style="width: auto; margin:0;"> Instagram
+            </label>
+            <input type="text" id="input-instagram" class="hidden" placeholder="Votre pseudo Instagram" style="margin-top: 0.4rem;">
+          </div>
+
+          <button id="intake-submit-btn" class="btn btn-primary" style="margin-top: 1.5rem; width:100%;" onclick="submitIntakeForm()">Envoyer aux délégués</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MENTIONS LÉGALES -->
+    <div id="legal-section" class="hidden">
+      <div class="card" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-header">
+          <h2 class="card-title">⚖ Mentions Légales & Politique de Confidentialité</h2>
+          <button class="btn btn-outline" onclick="showSection('home-section')">⬅ Retour</button>
+        </div>
+        <div style="color: var(--text); line-height: 1.8; font-size: 0.95rem;">
+          <h3 style="margin-top: 1.2rem; color: var(--primary);">1. Éditeur du site</h3>
+          <p>Le présent site web est édité par Classe de 1G_H. Adresse : 1 rue Chateaubriand, 59155, Faches-Thumesnil. Tél : 06 95 01 26 63. Directeur de la publication : Alexandre Codron-Blervaqe.</p>
+          <h3 style="margin-top: 1.5rem; color: var(--primary);">2. Hébergeur</h3>
+          <p>Netlify — 44 Montgomery Street, Suite 300, San Francisco, CA 94104, USA.</p>
+          <h3 style="margin-top: 1.5rem; color: var(--primary);">3. Confidentialité & RGPD</h3>
+          <p>Les données collectées via ce site sont strictement réservées à l'usage interne de la classe (fiches, résultats du conseil, formulaire des délégués) et stockées de manière sécurisée sur Supabase.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- MON ESPACE -->
+    <div id="space-section" class="hidden">
+      <div id="login-card" class="card" style="max-width: 450px; margin: 2rem auto;">
+        <div class="card-header"><h2 class="card-title">Se connecter</h2></div>
+        <label>Adresse e-mail</label>
+        <input type="email" id="email" placeholder="eleve@ecole.fr">
+        <label>Mot de passe</label>
+        <input type="password" id="password" placeholder="••••••••">
+        <button class="btn btn-primary" style="width:100%;" onclick="login()">Connexion</button>
+        <p id="login-error" style="color:#ef4444; font-size:0.85rem; margin-top:0.8rem;"></p>
+      </div>
+
+      <div id="user-dashboard" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <span id="user-role-badge" class="badge">Élève</span>
+              <h2 id="user-display-email" class="card-title" style="margin-top:0.4rem;">...</h2>
+            </div>
+            <button class="btn btn-outline" onclick="logout()">Déconnexion</button>
+          </div>
+
+          <div class="card" style="background: #f8fafc;">
+            <h3>📤 Proposer une fiche de révision</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top:0.8rem;">
+              <input type="text" id="fiche-title" placeholder="Titre de la fiche">
+              <select id="fiche-subject">
+                <option value="Français">Français</option>
+                <option value="Enseignement scientifique">Enseignement scientifique</option>
+                <option value="Anglais">Anglais</option>
+                <option value="Espagnol">Espagnol</option>
+                <option value="Allemand">Allemand</option>
+                <option value="Histoire-Géo-EMC">Histoire-Géo-EMC</option>
+              </select>
+            </div>
+            <input type="file" id="fiche-file">
+            <button class="btn btn-primary" onclick="uploadRevisionSheet()">Envoyer la fiche</button>
+
+            <div style="margin-top: 1.5rem;">
+              <h4>Vos fiches proposées :</h4>
+              <div id="my-sheets-list">...</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>📊 Vos résultats personnels du Conseil</h3>
+            <div id="my-results-list" style="margin-top:0.8rem;">Chargement...</div>
+          </div>
+
+          <div id="admin-panel" class="hidden">
+            <div class="card" style="background: #fffbeb;">
+              <h3 style="color:#b45309;">⏳ Modération des fiches en attente</h3>
+              <div id="pending-sheets-list" style="margin-top:0.8rem;">...</div>
+            </div>
+
+            <div class="card" style="background: #f0fdf4;">
+              <h3 style="color:#166534; margin-bottom: 0.8rem;">📬 Retours du formulaire des élèves (<span id="intake-count">0</span>)</h3>
+              <div id="intake-responses-list" class="intake-scroll-box">Chargement des réponses...</div>
+            </div>
+
+            <div class="card">
+              <h3>✍ Consultation et ajout des résultats du Conseil</h3>
+              <select id="student-select" onchange="loadSelectedStudentResult()" style="margin-top:0.8rem;">
+                <option value="">-- Choisir un élève / délégué --</option>
+              </select>
+              
+              <div id="admin-student-results-list" style="margin-bottom: 1rem;"></div>
+
+              <div style="border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem;">
+                <h4>Ajouter un résultat / appréciation</h4>
+                <input type="text" id="admin-result-title" placeholder="Titre (ex: Conseil de classe Trimestre 1)" style="margin-top:0.6rem;">
+                <textarea id="admin-appreciation" rows="3" placeholder="Saisir l'appréciation ou le compte-rendu..."></textarea>
+                <button class="btn btn-primary" onclick="addStudentResult()">Ajouter le résultat</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 id="post-form-title">📢 Publier une annonce</h3>
+              <input type="text" id="post-title" placeholder="Titre">
+              <textarea id="post-content" rows="3" placeholder="Contenu..."></textarea>
+              <div style="display: flex; gap: 0.5rem;">
+                <button id="post-submit-btn" class="btn btn-primary" style="flex:1;" onclick="handlePostSubmit()">Publier</button>
+                <button id="post-cancel-btn" class="btn btn-outline hidden" onclick="cancelEditPost()">Annuler</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>🔑 Modifier mon mot de passe</h3>
+            <div style="display: flex; gap: 1rem; margin-top:0.8rem;">
+              <input type="password" id="my-new-password" placeholder="Nouveau mot de passe" style="margin-bottom:0;">
+              <button class="btn btn-outline" onclick="changeMyPassword()">Mettre à jour</button>
+            </div>
+          </div>
+
+          <div id="webmaster-panel" class="hidden card" style="background: #f0fdf4; border-color: #bbf7d0;">
+            <h3 style="color:#166534;">🛠️ Panneau Webmaster - Gestion des comptes</h3>
+            
+            <div style="margin-top: 1rem; margin-bottom: 1.5rem;">
+              <h4>Créer un utilisateur :</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-top:0.6rem;">
+                <input type="text" id="new-user-name" placeholder="Nom Prénom">
+                <input type="email" id="new-user-email" placeholder="E-mail">
+                <input type="password" id="new-user-password" placeholder="Mot de passe">
+                <select id="new-user-role">
+                  <option value="student">Élève</option>
+                  <option value="admin">Délégué / Prof (Admin)</option>
+                  <option value="webmaster">Webmaster</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="createNewAccount()">Créer le compte</button>
+            </div>
+
+            <div style="border-top: 1px solid #bbf7d0; padding-top: 1rem;">
+              <h4>Liste et modification des utilisateurs existants :</h4>
+              <div id="webmaster-profiles-list" style="margin-top: 0.8rem;">Chargement des profils...</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <div id="cookie-banner" class="cookie-banner hidden">
+    <div style="max-width: 650px;">
+      <h4 style="margin-bottom: 0.3rem; font-size: 1.05rem;">🍪 Respect de votre vie privée</h4>
+      <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">
+        Ce site n'utilise aucun traceur tiers. Stockage technique local uniquement pour la session. <a href="#" onclick="showSection('legal-section'); hideCookieBanner(); return false;">Mentions légales</a>.
+      </p>
+    </div>
+    <div class="cookie-buttons">
+      <button class="btn btn-outline" onclick="handleCookieChoice('refused')">Tout refuser</button>
+      <button class="btn btn-primary" onclick="handleCookieChoice('accepted')">Tout accepter</button>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2026 Classe de 1G_H — Tous droits réservés</p>
+    <a href="#" onclick="showSection('legal-section'); return false;">Mentions légales & Confidentialité</a>
+  </footer>
+
+  <script>
+    let authToken = localStorage.getItem('site_token') || null;
+    let currentUserProfile = null;
+    let editingPostId = null;
+
+    async function apiFetch(endpoint, method = 'GET', body = null) {
+      const headers = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+
+      const options = { method, headers };
+      if (body) options.body = JSON.stringify(body);
+
+      const res = await fetch(`/api/${endpoint}`, options);
+      const text = await res.text();
+
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Erreur serveur (${res.status}) : ${text || res.statusText}`);
+      }
+
+      if (!res.ok) throw new Error(data.error || "Erreur serveur");
+      return data;
+    }
+
+    function checkCookieConsent() {
+      if (!localStorage.getItem('cookie_consent')) {
+        document.getElementById('cookie-banner').classList.remove('hidden');
+      }
+    }
+
+    function handleCookieChoice(choice) {
+      localStorage.setItem('cookie_consent', choice);
+      document.getElementById('cookie-banner').classList.add('hidden');
+    }
+
+    function hideCookieBanner() {
+      document.getElementById('cookie-banner').classList.add('hidden');
+    }
+
+    function showSection(sectionId) {
+      document.getElementById('home-section').classList.add('hidden');
+      document.getElementById('space-section').classList.add('hidden');
+      document.getElementById('intake-section').classList.add('hidden');
+      document.getElementById('legal-section').classList.add('hidden');
+      document.getElementById(sectionId).classList.remove('hidden');
+
+      window.scrollTo(0, 0);
+
+      if (sectionId === 'intake-section') {
+        if (!authToken) {
+          document.getElementById('intake-not-logged').classList.remove('hidden');
+          document.getElementById('intake-form-container').classList.add('hidden');
+        } else {
+          document.getElementById('intake-not-logged').classList.add('hidden');
+          document.getElementById('intake-form-container').classList.remove('hidden');
+          loadMyIntakeResponse();
+        }
+      }
+    }
+
+    function openIntakeForm() {
+      showSection('intake-section');
+    }
+
+    async function loadMyIntakeResponse() {
+      try {
+        const data = await apiFetch('intake/my');
+        if (data) {
+          document.getElementById('intake-info').value = data.info || '';
+          
+          document.getElementById('check-whatsapp').checked = data.has_whatsapp || false;
+          document.getElementById('input-whatsapp').value = data.whatsapp_handle || '';
+          if (data.has_whatsapp) document.getElementById('input-whatsapp').classList.remove('hidden');
+
+          document.getElementById('check-snapchat').checked = data.has_snapchat || false;
+          document.getElementById('input-snapchat').value = data.snapchat_handle || '';
+          if (data.has_snapchat) document.getElementById('input-snapchat').classList.remove('hidden');
+
+          document.getElementById('check-instagram').checked = data.has_instagram || false;
+          document.getElementById('input-instagram').value = data.instagram_handle || '';
+          if (data.has_instagram) document.getElementById('input-instagram').classList.remove('hidden');
+
+          document.getElementById('intake-submit-btn').innerText = "Modifier mes réponses";
+        } else {
+          document.getElementById('intake-info').value = '';
+          document.getElementById('check-whatsapp').checked = false;
+          document.getElementById('input-whatsapp').value = '';
+          document.getElementById('input-whatsapp').classList.add('hidden');
+          document.getElementById('check-snapchat').checked = false;
+          document.getElementById('input-snapchat').value = '';
+          document.getElementById('input-snapchat').classList.add('hidden');
+          document.getElementById('check-instagram').checked = false;
+          document.getElementById('input-instagram').value = '';
+          document.getElementById('input-instagram').classList.add('hidden');
+          document.getElementById('intake-submit-btn').innerText = "Envoyer aux délégués";
+        }
+      } catch (e) {}
+    }
+
+    function toggleNetworkInput(net) {
+      const checked = document.getElementById(`check-${net}`).checked;
+      const input = document.getElementById(`input-${net}`);
+      if (checked) {
+        input.classList.remove('hidden');
+      } else {
+        input.classList.add('hidden');
+        input.value = '';
+      }
+    }
+
+    async function submitIntakeForm() {
+      const info = document.getElementById('intake-info').value;
+      const has_whatsapp = document.getElementById('check-whatsapp').checked;
+      const whatsapp_handle = document.getElementById('input-whatsapp').value;
+      const has_snapchat = document.getElementById('check-snapchat').checked;
+      const snapchat_handle = document.getElementById('input-snapchat').value;
+      const has_instagram = document.getElementById('check-instagram').checked;
+      const instagram_handle = document.getElementById('input-instagram').value;
+
+      try {
+        await apiFetch('intake/submit', 'POST', {
+          info, has_whatsapp, whatsapp_handle, has_snapchat, snapchat_handle, has_instagram, instagram_handle
+        });
+        alert('Vos réponses ont bien été enregistrées / mises à jour !');
+        showSection('home-section');
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function login() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      try {
+        const data = await apiFetch('auth/login', 'POST', { email, password });
+        authToken = data.token;
+        localStorage.setItem('site_token', authToken);
+        currentUserProfile = data.profile;
+        initApp();
+        showSection('space-section');
+      } catch (err) {
+        document.getElementById('login-error').innerText = err.message;
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('site_token');
+      location.reload();
+    }
+
+    async function initApp() {
+      checkCookieConsent();
+
+      if (authToken) {
+        try {
+          const meData = await apiFetch('auth/me');
+          currentUserProfile = meData.profile;
+
+          document.getElementById('login-card').classList.add('hidden');
+          document.getElementById('user-dashboard').classList.remove('hidden');
+          document.getElementById('nav-space-btn').innerText = "👤 Mon Espace";
+
+          loadMyResult();
+          loadMyProposedSheets();
+
+          if (currentUserProfile) {
+            const role = currentUserProfile.role;
+            const badge = document.getElementById('user-role-badge');
+            
+            document.getElementById('user-display-email').innerText = currentUserProfile.full_name || currentUserProfile.email;
+
+            if (role === 'webmaster' || role === 'admin') {
+              badge.innerText = role === 'webmaster' ? 'Webmaster' : 'Délégué / Prof';
+              document.getElementById('admin-panel').classList.remove('hidden');
+              if (role === 'webmaster') {
+                document.getElementById('webmaster-panel').classList.remove('hidden');
+                loadWebmasterProfiles();
+              }
+              loadStudentsList();
+              loadPendingSheets();
+              loadIntakeResponses();
+            }
+          }
+        } catch (e) {
+          logout();
+        }
+      }
+
+      loadPosts();
+      loadApprovedSheets();
+    }
+
+    async function loadPosts() {
+      try {
+        const posts = await apiFetch('posts');
+        const isAdmin = currentUserProfile && (currentUserProfile.role === 'admin' || currentUserProfile.role === 'webmaster');
+        document.getElementById('posts-list').innerHTML = posts.map(p => `
+          <div class="post-card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem;">
+              <h3 style="word-break: break-word;">${p.title}</h3>
+              ${isAdmin ? `
+                <div style="display: flex; gap: 0.3rem; flex-shrink: 0;">
+                  <button class="btn btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="startEditPost(${p.id}, '${encodeURIComponent(p.title)}', '${encodeURIComponent(p.content)}')">✏️ Modifier</button>
+                  <button class="btn btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="deletePost(${p.id})">🗑️ Supprimer</button>
+                </div>
+              ` : ''}
+            </div>
+            <p style="margin-top: 0.5rem; word-break: break-word;">${p.content}</p>
+          </div>
+        `).join('') || '<p style="color:var(--text-muted);">Aucune annonce pour le moment.</p>';
+      } catch (e) {}
+    }
+
+    function startEditPost(id, title, content) {
+      editingPostId = id;
+      document.getElementById('post-form-title').innerText = "✏️ Modifier l'annonce";
+      document.getElementById('post-title').value = decodeURIComponent(title);
+      document.getElementById('post-content').value = decodeURIComponent(content);
+      const submitBtn = document.getElementById('post-submit-btn');
+      submitBtn.innerText = "Mettre à jour";
+      submitBtn.classList.remove('btn-primary');
+      submitBtn.classList.add('btn-success');
+      document.getElementById('post-cancel-btn').classList.remove('hidden');
+      document.getElementById('post-title').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelEditPost() {
+      editingPostId = null;
+      document.getElementById('post-form-title').innerText = "📢 Publier une annonce";
+      document.getElementById('post-title').value = '';
+      document.getElementById('post-content').value = '';
+      const submitBtn = document.getElementById('post-submit-btn');
+      submitBtn.innerText = "Publier";
+      submitBtn.classList.remove('btn-success');
+      submitBtn.classList.add('btn-primary');
+      document.getElementById('post-cancel-btn').classList.add('hidden');
+    }
+
+    async function handlePostSubmit() {
+      const title = document.getElementById('post-title').value;
+      const content = document.getElementById('post-content').value;
+      if (!title || !content) return alert('Veuillez remplir le titre et le contenu.');
+
+      try {
+        if (editingPostId) {
+          await apiFetch('posts/update', 'POST', { id: editingPostId, title, content });
+          alert('Annonce mise à jour avec succès !');
+          cancelEditPost();
+        } else {
+          await apiFetch('posts/create', 'POST', { title, content });
+          alert('Annonce publiée avec succès !');
+          document.getElementById('post-title').value = '';
+          document.getElementById('post-content').value = '';
+        }
+        loadPosts();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function deletePost(id) {
+      if (!confirm('Voulez-vous vraiment supprimer cette annonce ?')) return;
+      try {
+        await apiFetch('posts/delete', 'POST', { id });
+        alert('Annonce supprimée.');
+        loadPosts();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function loadApprovedSheets() {
+      try {
+        const sheets = await apiFetch('sheets/approved');
+        const isAdmin = currentUserProfile && (currentUserProfile.role === 'admin' || currentUserProfile.role === 'webmaster');
+        document.getElementById('approved-sheets-list').innerHTML = sheets.map(s => `
+          <div class="sheet-item" style="cursor: default;">
+            <div><strong>[${s.subject}] ${s.title}</strong></div>
+            <div style="display:flex; gap:0.5rem;">
+              <a href="${s.file_url}" target="_blank" class="btn btn-outline">📖 Ouvrir</a>
+              ${isAdmin ? `<button class="btn btn-danger" onclick="deleteApprovedSheet(${s.id})">🗑 Supprimer</button>` : ''}
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {}
+    }
+
+    async function deleteApprovedSheet(sheetId) {
+      if (!confirm('Supprimer cette fiche ?')) return;
+      await apiFetch('sheets/delete', 'POST', { sheetId });
+      loadApprovedSheets();
+    }
+
+    async function uploadRevisionSheet() {
+      const title = document.getElementById('fiche-title').value;
+      const subject = document.getElementById('fiche-subject').value;
+      const fileInput = document.getElementById('fiche-file');
+
+      if (!title || !fileInput.files.length) return alert('Sélectionnez un fichier et un titre.');
+
+      const file = fileInput.files[0];
+      if (file.size > 3 * 1024 * 1024) return alert('Fichier trop volumineux (3 Mo maximum).');
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          await apiFetch('sheets/upload', 'POST', {
+            title, subject, fileName: file.name, fileBase64: reader.result
+          });
+          alert('Fiche envoyée pour validation !');
+          loadMyProposedSheets();
+        } catch (err) { alert(err.message); }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function loadMyProposedSheets() {
+      const sheets = await apiFetch('sheets/my');
+      document.getElementById('my-sheets-list').innerHTML = sheets.map(s => `
+        <div class="sheet-item" style="cursor: default; flex-direction: column; align-items: flex-start; gap: 0.4rem;">
+          <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+            <span>[${s.subject}] ${s.title}</span>
+            <span class="badge ${s.status === 'pending' ? 'badge-pending' : s.status === 'approved' ? 'badge-approved' : 'badge-rejected'}">
+              ${s.status === 'pending' ? 'En attente' : s.status === 'approved' ? 'Approuvée' : 'Refusée'}
+            </span>
+          </div>
+          ${s.status === 'rejected' ? `<div style="font-size: 0.85rem; color: #991b1b; background: #fee2e2; width: 100%; padding: 0.4rem; border-radius: 6px;"><strong>Motif du refus :</strong> ${s.rejection_reason || 'Non spécifié'}</div>` : ''}
+        </div>
+      `).join('') || '<p style="color:var(--text-muted); font-size:0.9rem;">Aucune fiche proposée pour le moment.</p>';
+    }
+
+    async function loadPendingSheets() {
+      const sheets = await apiFetch('sheets/pending');
+      document.getElementById('pending-sheets-list').innerHTML = sheets.map(s => `
+        <div class="sheet-item" style="cursor: default;">
+          <span>[${s.subject}] ${s.title}</span>
+          <div style="display:flex; gap:0.5rem;">
+            <a href="${s.file_url}" target="_blank" class="btn btn-outline">👁 Voir</a>
+            <button class="btn btn-success" onclick="approveSheet(${s.id})">✅ Valider</button>
+            <button class="btn btn-danger" onclick="promptRejectSheet(${s.id})">❌ Refuser</button>
+          </div>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted); font-size:0.9rem;">Aucune fiche en attente de modération.</p>';
+    }
+
+    async function approveSheet(sheetId) {
+      await apiFetch('sheets/approve', 'POST', { sheetId });
+      loadPendingSheets(); loadApprovedSheets();
+    }
+
+    async function promptRejectSheet(sheetId) {
+      const reason = prompt("Veuillez indiquer la raison du refus (ex: contenu erroné, illisible, doublon...) :");
+      if (reason === null) return; // Annulé par l'admin
+      try {
+        await apiFetch('sheets/reject', 'POST', { sheetId, reason });
+        alert('Fiche refusée avec motif.');
+        loadPendingSheets();
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function loadMyResult() {
+      const data = await apiFetch('results/my');
+      document.getElementById('my-results-list').innerHTML = data.map(r => `
+        <div class="result-card">
+          <h4>📌 ${r.title || 'Conseil de classe'}</h4>
+          <p>${r.appreciation}</p>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted);">Aucun résultat enregistré pour le moment.</p>';
+    }
+
+    async function loadStudentsList() {
+      const students = await apiFetch('admin/students');
+      const select = document.getElementById('student-select');
+      select.innerHTML = '<option value="">-- Choisir un élève / délégué --</option>';
+      students.forEach(s => {
+        select.innerHTML += `<option value="${s.id}">${s.full_name || s.email} (${s.role})</option>`;
+      });
+    }
+
+    async function loadSelectedStudentResult() {
+      const studentId = document.getElementById('student-select').value;
+      const container = document.getElementById('admin-student-results-list');
+      if (!studentId) {
+        container.innerHTML = '';
+        return;
+      }
+      const data = await apiFetch('admin/student-results', 'POST', { studentId });
+      container.innerHTML = data.map(r => `
+        <div class="result-card" style="margin-top: 0.6rem;">
+          <h4>📋 ${r.title || 'Conseil de classe'}</h4>
+          <p>${r.appreciation}</p>
+        </div>
+      `).join('') || '<p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.5rem;">Aucun résultat enregistré pour cet élève.</p>';
+    }
+
+    async function addStudentResult() {
+      const studentId = document.getElementById('student-select').value;
+      const title = document.getElementById('admin-result-title').value;
+      const appreciation = document.getElementById('admin-appreciation').value;
+      if (!studentId || !appreciation) return alert('Veuillez sélectionner un élève et saisir une appréciation.');
+
+      await apiFetch('admin/add-result', 'POST', { studentId, title, appreciation });
+      alert('Résultat ajouté avec succès !');
+      document.getElementById('admin-appreciation').value = '';
+      document.getElementById('admin-result-title').value = '';
+      loadSelectedStudentResult();
+    }
+
+    async function loadIntakeResponses() {
+      try {
+        const responses = await apiFetch('intake/responses');
+        document.getElementById('intake-count').innerText = responses.length;
+        const container = document.getElementById('intake-responses-list');
+        
+        container.innerHTML = responses.map(r => `
+          <div class="intake-response-row">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.3rem;">
+              <strong>👤 ${r.profiles?.full_name || r.profiles?.email || 'Élève'}</strong>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">${new Date(r.created_at).toLocaleDateString()}</span>
+            </div>
+            <p style="margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text); background: #f8fafc; padding: 0.4rem 0.6rem; border-radius: 6px;">${r.info || 'Aucune information textuelle fournie.'}</p>
+            <div style="font-size: 0.8rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+              ${r.has_whatsapp ? `<span>🟢 <strong>WA:</strong> ${r.whatsapp_handle}</span>` : ''}
+              ${r.has_snapchat ? `<span>🟡 <strong>Snap:</strong> ${r.snapchat_handle}</span>` : ''}
+              ${r.has_instagram ? `<span>🟣 <strong>Insta:</strong> ${r.instagram_handle}</span>` : ''}
+            </div>
+          </div>
+        `).join('') || '<p style="color:var(--text-muted); font-size:0.9rem;">Aucun retour formulaire pour le moment.</p>';
+      } catch (e) {
+        document.getElementById('intake-responses-list').innerHTML = '<p style="color:#dc2626; font-size:0.9rem;">Erreur lors du chargement des réponses.</p>';
+      }
+    }
+
+    async function changeMyPassword() {
+      const new_password = document.getElementById('my-new-password').value;
+      await apiFetch('auth/change-password', 'POST', { new_password });
+      alert('Mot de passe mis à jour !');
+    }
+
+    async function createNewAccount() {
+      const name = document.getElementById('new-user-name').value;
+      const email = document.getElementById('new-user-email').value;
+      const password = document.getElementById('new-user-password').value;
+      const role = document.getElementById('new-user-role').value;
+      await apiFetch('webmaster/create-user', 'POST', { name, email, password, role });
+      alert('Compte créé avec succès !');
+      loadWebmasterProfiles();
+      loadStudentsList();
+    }
+
+    async function loadWebmasterProfiles() {
+      try {
+        const profiles = await apiFetch('webmaster/profiles');
+        const container = document.getElementById('webmaster-profiles-list');
+        container.innerHTML = profiles.map(p => `
+          <div class="user-row">
+            <div style="flex: 2;">
+              <input type="text" id="w-name-${p.id}" value="${p.full_name || ''}" placeholder="Nom" style="margin-bottom:0; font-size:0.9rem;">
+              <small style="color:var(--text-muted);">${p.email}</small>
+            </div>
+            <div style="flex: 1;">
+              <select id="w-role-${p.id}" style="margin-bottom:0; font-size:0.9rem;">
+                <option value="student" ${p.role === 'student' ? 'selected' : ''}>Élève</option>
+                <option value="admin" ${p.role === 'admin' ? 'selected' : ''}>Délégué / Admin</option>
+                <option value="webmaster" ${p.role === 'webmaster' ? 'selected' : ''}>Webmaster</option>
+              </select>
+            </div>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size:0.8rem;" onclick="updateProfile('${p.id}')">💾 Sauver</button>
+              <button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size:0.8rem;" onclick="resetUserPassword('${p.id}')">🔑 MDP</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {}
+    }
+
+    async function updateProfile(userId) {
+      const name = document.getElementById(`w-name-${userId}`).value;
+      const role = document.getElementById(`w-role-${userId}`).value;
+      try {
+        await apiFetch('webmaster/update-profile', 'POST', { userId, name, role });
+        alert('Profil mis à jour !');
+        loadWebmasterProfiles();
+        loadStudentsList();
+      } catch (err) { alert(err.message); }
+    }
+
+    async function resetUserPassword(userId) {
+      const newPassword = prompt('Entrez le nouveau mot de passe pour cet utilisateur :');
+      if (!newPassword) return;
+      try {
+        await apiFetch('webmaster/reset-password', 'POST', { userId, newPassword });
+        alert('Mot de passe réinitialisé avec succès !');
+      } catch (err) { alert(err.message); }
+    }
+
+    initApp();
+  </script>
+</body>
+</html>

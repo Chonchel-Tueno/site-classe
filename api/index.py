@@ -1,13 +1,13 @@
 """API du site de classe 1GH : port Python (Flask) de l'ancien api.js, pour Vercel."""
+import base64
 import os
-import time
 
 from flask import Flask, jsonify, request
 from supabase import create_client
 
 app = Flask(__name__)
 
-BUCKET = "revision_files"
+MAX_UPLOAD_BYTES = 3 * 1024 * 1024  # Vercel limite le corps d'une requête à ~4,5 Mo (base64 inclus)
 ALLOWED_EXT = {"pdf", "png", "jpg", "jpeg", "webp", "doc", "docx", "odt", "ppt", "pptx", "txt"}
 
 
@@ -83,13 +83,7 @@ def approved_sheets(db, body):
     return rows(db.table("revision_sheets").select("*").eq("status", "approved").order("created_at", desc=True))
 
 
-def public_config(db, body):
-    # La clé "anon" est faite pour être publique (elle ne donne que les droits prévus par tes règles Supabase).
-    return {"supabase_url": _env("SUPABASE_URL"), "supabase_anon_key": _env("SUPABASE_ANON_KEY")}
-
-
 PUBLIC = {
-    ("GET", "config"): public_config,
     ("POST", "auth/login"): login,
     ("GET", "posts"): list_posts,
     ("GET", "sheets/approved"): approved_sheets,
@@ -119,37 +113,33 @@ def my_sheets(db, body, ctx):
     return rows(db.table("revision_sheets").select("*").eq("created_by", ctx["user"].id).order("created_at", desc=True))
 
 
-def upload_url(db, body, ctx):
-    """Étape 1 : le serveur délivre une URL d'envoi signée. Le fichier, lui, ne passe PAS par Vercel."""
-    file_name = body.get("fileName") or ""
+def upload_sheet(db, body, ctx):
+    title, subject, file_name = body.get("title"), body.get("subject"), body.get("fileName") or ""
+    raw = body.get("fileBase64") or ""
+    if not title or not raw:
+        raise ApiError(400, "Titre et fichier requis.")
+
+    header, sep, payload = raw.partition(",")
+    content_type = header[5:].split(";")[0] if sep and header.startswith("data:") else "application/octet-stream"
+    data = base64.b64decode(payload if sep else raw)
+
+    if len(data) > MAX_UPLOAD_BYTES:
+        raise ApiError(413, "Fichier trop volumineux (3 Mo maximum).")
     ext = file_name.rsplit(".", 1)[-1].lower() if "." in file_name else ""
     if ext not in ALLOWED_EXT:
         raise ApiError(400, f"Type de fichier non autorisé (.{ext}).")
-    path = f"{ctx['user'].id}/{int(time.time() * 1000)}.{ext}"
+
+    import time
+    storage_path = f"{ctx['user'].id}/{int(time.time() * 1000)}.{ext}"
     try:
-        res = db.storage.from_(BUCKET).create_signed_upload_url(path)
+        db.storage.from_("revision_files").upload(storage_path, data, {"content-type": content_type})
     except Exception as e:
         raise ApiError(500, getattr(e, "message", str(e)))
-    token = res["token"] if isinstance(res, dict) else res.token
-    return {"path": path, "token": token}
-
-
-def register_sheet(db, body, ctx):
-    """Étape 3 : une fois le fichier envoyé directement à Supabase, on enregistre la fiche en modération."""
-    title, subject, file_name = body.get("title"), body.get("subject"), body.get("fileName")
-    path, uid = body.get("path") or "", ctx["user"].id
-    if not title or not path:
-        raise ApiError(400, "Titre et fichier requis.")
-    folder, _, name = path.partition("/")
-    if folder != uid or not name or "/" in name or ".." in name:
-        raise ApiError(400, "Chemin de fichier invalide.")
-    found = db.storage.from_(BUCKET).list(uid, {"search": name, "limit": 100})
-    if not any(f.get("name") == name for f in found):
-        raise ApiError(400, "Fichier introuvable : l'envoi n'a pas abouti.")
+    public_url = db.storage.from_("revision_files").get_public_url(storage_path)
 
     db.table("revision_sheets").insert({
-        "title": title, "subject": subject, "file_url": db.storage.from_(BUCKET).get_public_url(path),
-        "file_name": file_name, "created_by": uid, "status": "pending", "rejection_reason": None,
+        "title": title, "subject": subject, "file_url": public_url, "file_name": file_name,
+        "created_by": ctx["user"].id, "status": "pending", "rejection_reason": None,
     }).execute()
     return {"message": "Fiche envoyée en modération."}
 
@@ -172,8 +162,7 @@ AUTHED = {
     ("POST", "auth/change-password"): change_password,
     ("GET", "results/my"): my_results,
     ("GET", "sheets/my"): my_sheets,
-    ("POST", "sheets/upload-url"): upload_url,
-    ("POST", "sheets/register"): register_sheet,
+    ("POST", "sheets/upload"): upload_sheet,
     ("GET", "intake/my"): my_intake,
     ("POST", "intake/submit"): submit_intake,
 }
